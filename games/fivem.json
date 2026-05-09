@@ -1,7 +1,7 @@
   {
-    "id": "fivem",
-    "name": "FiveM",
-    "description": "Run your FiveM servers with this template",
+    "id": "fivems",
+    "name": "FiveMs",
+    "description": "Run your FiveMs servers with this template",
     "defaultPort": 30120,
     "templateImage": "https://logos-world.net/wp-content/uploads/2021/03/FiveM-Symbol.png",
     "docker": {
