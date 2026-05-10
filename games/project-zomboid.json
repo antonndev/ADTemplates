@@ -1,0 +1,71 @@
+{
+  "id": "project-zomboid",
+  "name": "Project Zomboid",
+  "description": "Project Zomboid dedicated server template using renegademaster/zomboid-dedicated-server. It persists both server install data and user config/save data, and exposes required game ports plus optional RCON.",
+  "defaultPort": 16261,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/projectzomboid-logo.avif",
+  "docker": {
+    "image": "renegademaster/zomboid-dedicated-server",
+    "tag": "latest",
+    "ports": [
+      16261,
+      16262,
+      27015
+    ],
+    "portProtocols": {
+      "16261": [
+        "udp"
+      ],
+      "16262": [
+        "udp"
+      ],
+      "27015": [
+        "tcp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}/server:/home/steam/ZomboidDedicatedServer",
+      "{BOT_DIR}/config:/home/steam/Zomboid"
+    ],
+    "workdir": "/home/root",
+    "env": {
+      "ADMIN_PASSWORD": "change-me",
+      "ADMIN_USERNAME": "superuser",
+      "BIND_IP": "0.0.0.0",
+      "DEFAULT_PORT": "16261",
+      "UDP_PORT": "16262",
+      "RCON_PASSWORD": "change-me",
+      "RCON_PORT": "27015",
+      "SERVER_NAME": "ADPanelZomboid",
+      "SERVER_PASSWORD": "",
+      "MAX_PLAYERS": "16",
+      "MAX_RAM": "4096m",
+      "STEAM_VAC": "true",
+      "USE_STEAM": "true",
+      "TZ": "UTC"
+    },
+    "command": "",
+    "startupDisplay": "/bin/bash /home/steam/run_server.sh",
+    "adpanelStartup": "",
+    "install": {
+      "image": "ghcr.io/pterodactyl/installers:debian",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server /mnt/server/config\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/home/steam/ZomboidDedicatedServer",
+      "minimumStorageMb": 10000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/renegademaster/zomboid-dedicated-server",
+    "https://github.com/Renegade-Master/zomboid-dedicated-server"
+  ],
+  "requirements": {
+    "minimumRamMb": 4096,
+    "recommendedRamMb": 8192,
+    "minimumStorageMb": 10000
+  }
+}

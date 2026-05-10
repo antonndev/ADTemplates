@@ -1,0 +1,55 @@
+{
+  "id": "hytale",
+  "name": "Hytale",
+  "description": "Hytale dedicated server template using rxmarin/hytale-docker. The image is designed for persistent /server data, auto-updates, device-code authentication and QUIC over UDP on port 5520.",
+  "defaultPort": 5520,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/hytale-logo.avif",
+  "docker": {
+    "image": "rxmarin/hytale-docker",
+    "tag": "latest",
+    "ports": [
+      5520
+    ],
+    "portProtocols": {
+      "5520": [
+        "udp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/server"
+    ],
+    "workdir": "/server",
+    "env": {
+      "JAVA_OPTS": "-Xms4G -Xmx8G",
+      "AUTO_UPDATE": "true",
+      "PATCHLINE": "release",
+      "USE_AOT_CACHE": "true",
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "startupDisplay": "/sbin/tini -- hytale-server",
+    "adpanelStartup": "",
+    "install": {
+      "image": "ghcr.io/pterodactyl/installers:debian",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/data /mnt/server/logs /mnt/server/cache\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/server",
+      "minimumStorageMb": 12000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/rxmarin/hytale-docker",
+    "https://github.com/romariin/hytale-docker",
+    "https://hytale.romarin.dev/"
+  ],
+  "requirements": {
+    "minimumRamMb": 4096,
+    "recommendedRamMb": 8192,
+    "minimumStorageMb": 12000,
+    "requiresFirstRunAuthentication": true
+  }
+}

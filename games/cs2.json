@@ -1,0 +1,75 @@
+{
+  "id": "csgo",
+  "name": "Counter-Strike 2",
+  "description": "Counter-Strike 2 dedicated server template using the existing ADPanel SteamCMD installer. It installs app 730, persists the server in /home/container and starts the server with safe structured startup variables.",
+  "defaultPort": 27015,
+  "templateImage": "https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg",
+  "docker": {
+    "image": "ghcr.io/ptero-eggs/steamcmd",
+    "tag": "sniper",
+    "ports": [
+      27015,
+      27020,
+      27005
+    ],
+    "portProtocols": {
+      "27015": [
+        "tcp",
+        "udp"
+      ],
+      "27020": [
+        "udp"
+      ],
+      "27005": [
+        "udp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/home/container"
+    ],
+    "workdir": "/home/container",
+    "env": {
+      "SRCDS_APPID": "730",
+      "SRCDS_MAP": "de_dust2",
+      "MAX_PLAYERS": "12",
+      "AUTO_UPDATE": "1",
+      "TV_PORT": "27020",
+      "STEAM_GSLT": "",
+      "VAC_ENABLED": "1",
+      "RCON_ENABLED": "0",
+      "SERVER_NAME": "ADPanel CS2 Server",
+      "SERVER_PASSWORD": "",
+      "RCON_PASSWORD": "changeme",
+      "GAME_MODE": "1",
+      "GAME_TYPE": "0",
+      "STEAM_USER": "anonymous",
+      "STEAM_PASS": "",
+      "STEAM_AUTH": "",
+      "EXTRA_FLAGS": ""
+    },
+    "command": "",
+    "adpanelStartup": "LD_LIBRARY_PATH=\"$HOME/game/bin/linuxsteamrt64:$LD_LIBRARY_PATH\" ./game/bin/linuxsteamrt64/cs2 -dedicated $( [ \"$VAC_ENABLED\" == \"1\" ] || printf %s ' -insecure' ) -ip 0.0.0.0 -port {{SERVER_PORT}} -tv_port {{TV_PORT}} -maxplayers {{MAX_PLAYERS}} $( [ \"$RCON_ENABLED\" == \"0\" ] || printf %s ' -usercon' ) +game_mode {{GAME_MODE}} +game_type {{GAME_TYPE}} +map {{SRCDS_MAP}} +hostname \"{{SERVER_NAME}}\" +sv_password \"{{SERVER_PASSWORD}}\" +rcon_password \"{{RCON_PASSWORD}}\" +sv_setsteamaccount {{STEAM_GSLT}}",
+    "install": {
+      "image": "ghcr.io/pterodactyl/installers:debian",
+      "script": "#!/bin/bash\nset -e\nif [[ -z \"${STEAM_USER}\" || -z \"${STEAM_PASS}\" ]]; then\n  STEAM_USER=anonymous\n  STEAM_PASS=\"\"\n  STEAM_AUTH=\"\"\nfi\ncd /tmp\nmkdir -p /mnt/server/steamcmd /mnt/server/steamapps\ncurl -sSL -o steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz\ntar -xzvf steamcmd.tar.gz -C /mnt/server/steamcmd\ncd /mnt/server/steamcmd\nchown -R root:root /mnt\nexport HOME=/mnt/server\n./steamcmd.sh +force_install_dir /mnt/server +login ${STEAM_USER} ${STEAM_PASS} ${STEAM_AUTH} +app_update ${SRCDS_APPID} ${EXTRA_FLAGS} validate +quit\nmkdir -p /mnt/server/.steam/sdk32 /mnt/server/.steam/sdk64\ncp -v linux32/steamclient.so /mnt/server/.steam/sdk32/steamclient.so || true\ncp -v linux64/steamclient.so /mnt/server/.steam/sdk64/steamclient.so || true\necho \"Installation completed.\"",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/home/container",
+      "minimumStorageMb": 40000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/joedwards32/cs2",
+    "https://developer.valvesoftware.com/wiki/Counter-Strike_2/Dedicated_Servers",
+    "https://steamcommunity.com/dev/managegameservers"
+  ],
+  "requirements": {
+    "minimumRamMb": 2048,
+    "recommendedRamMb": 4096,
+    "minimumStorageMb": 40000,
+    "requiresSteamGslt": true
+  }
+}
