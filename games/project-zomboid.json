@@ -47,7 +47,7 @@
     "command": "",
     "adpanelStartup": "",
     "install": {
-      "image": "alpine:3.20",
+      "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server /mnt/server/config\nchown -R 1000:1000 /mnt/server\nchmod -R 775 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/home/steam/ZomboidDedicatedServer",

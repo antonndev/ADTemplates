@@ -58,7 +58,7 @@
     "command": "",
     "adpanelStartup": "",
     "install": {
-      "image": "alpine:3.20",
+      "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/saves /mnt/server/config /mnt/server/serverfiles /mnt/server/logs /mnt/server/backups\nchown -R 1000:1000 /mnt/server\nchmod -R 775 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/home/sdtdserver/serverfiles",

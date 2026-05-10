@@ -38,7 +38,7 @@
     "command": "",
     "adpanelStartup": "",
     "install": {
-      "image": "alpine:3.20",
+      "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server\nchmod -R 775 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/ragemp",

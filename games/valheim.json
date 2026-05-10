@@ -39,7 +39,7 @@
     "command": "",
     "adpanelStartup": "",
     "install": {
-      "image": "alpine:3.20",
+      "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/config/worlds /mnt/server/config/backups /mnt/server/data\nchmod -R 775 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/config",
