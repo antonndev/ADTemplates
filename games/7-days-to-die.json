@@ -43,7 +43,7 @@
       "{BOT_DIR}/logs:/home/sdtdserver/log",
       "{BOT_DIR}/backups:/home/sdtdserver/lgsm/backup"
     ],
-    "workdir": "/home/sdtdserver/serverfiles",
+    "workdir": "/home/sdtdserver",
     "env": {
       "START_MODE": "1",
       "VERSION": "stable",
@@ -56,6 +56,7 @@
       "CHANGE_CONFIG_DIR_OWNERSHIP": "NO"
     },
     "command": "",
+    "startupDisplay": "/home/sdtdserver/user.sh",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",

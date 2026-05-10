@@ -27,7 +27,7 @@
       "{BOT_DIR}/server:/home/steam/ZomboidDedicatedServer",
       "{BOT_DIR}/config:/home/steam/Zomboid"
     ],
-    "workdir": "/home/steam/ZomboidDedicatedServer",
+    "workdir": "/home/root",
     "env": {
       "ADMIN_PASSWORD": "change-me",
       "ADMIN_USERNAME": "superuser",
@@ -45,6 +45,7 @@
       "TZ": "UTC"
     },
     "command": "",
+    "startupDisplay": "/bin/bash /home/steam/run_server.sh",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",

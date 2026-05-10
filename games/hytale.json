@@ -27,6 +27,7 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
+    "startupDisplay": "/sbin/tini -- hytale-server",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",

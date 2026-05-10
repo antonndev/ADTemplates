@@ -38,11 +38,12 @@
     "volumes": [
       "{BOT_DIR}:/data"
     ],
-    "workdir": "/data",
+    "workdir": "/app",
     "env": {
       "TZ": "Etc/UTC"
     },
     "command": "",
+    "startupDisplay": "/bin/bash ./entrypoint.sh",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",

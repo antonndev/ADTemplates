@@ -23,7 +23,7 @@
       "{BOT_DIR}/config:/config",
       "{BOT_DIR}/data:/opt/valheim"
     ],
-    "workdir": "/config",
+    "workdir": "/",
     "env": {
       "SERVER_NAME": "ADPanel Valheim Server",
       "SERVER_PORT": "2456",
@@ -37,6 +37,7 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
+    "startupDisplay": "/usr/local/sbin/bootstrap",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",

@@ -26,7 +26,7 @@
     "volumes": [
       "{BOT_DIR}:/palworld"
     ],
-    "workdir": "/palworld",
+    "workdir": "/home/steam/server",
     "env": {
       "PUID": "1000",
       "PGID": "1000",
@@ -45,6 +45,7 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
+    "startupDisplay": "/home/steam/server/init.sh",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",

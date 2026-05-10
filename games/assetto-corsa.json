@@ -33,6 +33,7 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
+    "startupDisplay": "server-manager",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",

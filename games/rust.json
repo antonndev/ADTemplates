@@ -28,7 +28,7 @@
     "volumes": [
       "{BOT_DIR}:/steamcmd/rust"
     ],
-    "workdir": "/steamcmd/rust",
+    "workdir": "/",
     "env": {
       "RUST_SERVER_STARTUP_ARGUMENTS": "-batchmode -load -nographics +server.secure 1",
       "RUST_SERVER_IDENTITY": "adpanel",
@@ -49,6 +49,7 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
+    "startupDisplay": "/entrypoint.sh bash /app/start.sh",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",

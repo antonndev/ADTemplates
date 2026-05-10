@@ -53,6 +53,7 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
+    "startupDisplay": "/docker-entrypoint.sh",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
