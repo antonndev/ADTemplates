@@ -53,18 +53,22 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
-    "startupDisplay": "/docker-entrypoint.sh",
     "adpanelStartup": "",
+    "startupDisplay": "/docker-entrypoint.sh",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server /mnt/server/backups\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/app",
+      "timeoutSeconds": 1800,
       "minimumStorageMb": 60000
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "ShooterGameServer"
+      ]
     }
   },
   "documentation": [

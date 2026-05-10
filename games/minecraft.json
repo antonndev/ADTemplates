@@ -22,10 +22,15 @@
     "env": {},
     "command": "java -Xms128M -Xmx{RAM_MB}M -jar /data/server.jar nogui",
     "adpanelStartup": "",
+    "startupDisplay": "",
     "install": null,
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "java",
+        "bedrock_server"
+      ]
     },
     "javaVersion": "21"
   },

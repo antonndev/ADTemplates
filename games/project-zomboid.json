@@ -45,18 +45,24 @@
       "TZ": "UTC"
     },
     "command": "",
-    "startupDisplay": "/bin/bash /home/steam/run_server.sh",
     "adpanelStartup": "",
+    "startupDisplay": "/bin/bash /home/steam/run_server.sh",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server /mnt/server/config\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/home/steam/ZomboidDedicatedServer",
+      "timeoutSeconds": 1800,
       "minimumStorageMb": 10000
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "ProjectZomboid64",
+        "ProjectZomboid32",
+        "java"
+      ]
     }
   },
   "documentation": [

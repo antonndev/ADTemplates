@@ -16,11 +16,11 @@
       "8211": [
         "udp"
       ],
-      "27015": [
-        "udp"
-      ],
       "25575": [
         "tcp"
+      ],
+      "27015": [
+        "udp"
       ]
     },
     "volumes": [
@@ -45,18 +45,23 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
-    "startupDisplay": "/home/steam/server/init.sh",
     "adpanelStartup": "",
+    "startupDisplay": "/home/steam/server/init.sh",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/Pal/Saved/Config/LinuxServer /mnt/server/Pal/Saved/SaveGames\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/palworld",
+      "timeoutSeconds": 1800,
       "minimumStorageMb": 12000
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "PalServer-Linux-Test",
+        "PalServer"
+      ]
     }
   },
   "documentation": [

@@ -13,16 +13,16 @@
       8080
     ],
     "portProtocols": {
-      "30120": [
-        "tcp",
-        "udp"
+      "8080": [
+        "tcp"
       ],
       "30110": [
         "tcp",
         "udp"
       ],
-      "8080": [
-        "tcp"
+      "30120": [
+        "tcp",
+        "udp"
       ]
     },
     "volumes": [
@@ -43,10 +43,15 @@
     },
     "command": "",
     "adpanelStartup": "",
+    "startupDisplay": "",
     "install": null,
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "FXServer",
+        "fxserver"
+      ]
     }
   },
   "documentation": [

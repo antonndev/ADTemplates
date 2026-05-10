@@ -37,18 +37,23 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
-    "startupDisplay": "/usr/local/sbin/bootstrap",
     "adpanelStartup": "",
+    "startupDisplay": "/usr/local/sbin/bootstrap",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/config/worlds /mnt/server/config/backups /mnt/server/data\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/config",
+      "timeoutSeconds": 1800,
       "minimumStorageMb": 6000
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "valheim_server",
+        "valheim_server.x86_64"
+      ]
     }
   },
   "documentation": [

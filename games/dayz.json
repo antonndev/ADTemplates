@@ -43,18 +43,24 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
-    "startupDisplay": "/bin/bash ./entrypoint.sh",
     "adpanelStartup": "",
+    "startupDisplay": "/bin/bash ./entrypoint.sh",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/serverfiles /mnt/server/lgsm/config-lgsm/dayzserver /mnt/server/log /mnt/server/backups\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/data",
+      "timeoutSeconds": 1800,
       "minimumStorageMb": 20000
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "DayZServer",
+        "DayZServer_x64",
+        "dayzserver"
+      ]
     }
   },
   "documentation": [

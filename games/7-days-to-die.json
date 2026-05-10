@@ -16,6 +16,15 @@
       8082
     ],
     "portProtocols": {
+      "8080": [
+        "tcp"
+      ],
+      "8081": [
+        "tcp"
+      ],
+      "8082": [
+        "tcp"
+      ],
       "26900": [
         "tcp",
         "udp"
@@ -25,15 +34,6 @@
       ],
       "26902": [
         "udp"
-      ],
-      "8080": [
-        "tcp"
-      ],
-      "8081": [
-        "tcp"
-      ],
-      "8082": [
-        "tcp"
       ]
     },
     "volumes": [
@@ -56,18 +56,23 @@
       "CHANGE_CONFIG_DIR_OWNERSHIP": "NO"
     },
     "command": "",
-    "startupDisplay": "/home/sdtdserver/user.sh",
     "adpanelStartup": "",
+    "startupDisplay": "/home/sdtdserver/user.sh",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/saves /mnt/server/config /mnt/server/serverfiles /mnt/server/logs /mnt/server/backups\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/home/sdtdserver/serverfiles",
+      "timeoutSeconds": 1800,
       "minimumStorageMb": 20000
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "7DaysToDieServer",
+        "7DaysToDieServer.x86_64"
+      ]
     }
   },
   "documentation": [

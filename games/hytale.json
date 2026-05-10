@@ -27,18 +27,23 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
-    "startupDisplay": "/sbin/tini -- hytale-server",
     "adpanelStartup": "",
+    "startupDisplay": "/sbin/tini -- hytale-server",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/data /mnt/server/logs /mnt/server/cache\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/server",
+      "timeoutSeconds": 1800,
       "minimumStorageMb": 12000
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "hytale-server",
+        "java"
+      ]
     }
   },
   "documentation": [

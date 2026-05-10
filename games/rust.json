@@ -49,18 +49,22 @@
       "TZ": "Etc/UTC"
     },
     "command": "",
-    "startupDisplay": "/entrypoint.sh bash /app/start.sh",
     "adpanelStartup": "",
+    "startupDisplay": "/entrypoint.sh bash /app/start.sh",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server/adpanel /mnt/server/oxide /mnt/server/cfg\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/steamcmd/rust",
+      "timeoutSeconds": 1800,
       "minimumStorageMb": 12000
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "RustDedicated"
+      ]
     }
   },
   "documentation": [
