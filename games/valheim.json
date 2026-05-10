@@ -1,0 +1,63 @@
+{
+  "id": "valheim",
+  "name": "Valheim",
+  "description": "Valheim dedicated server template using lloesche/valheim-server. It downloads the server from Steam on first boot, persists config/worlds and data, and includes periodic world backups.",
+  "defaultPort": 2456,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/valheim-logo.avif",
+  "docker": {
+    "image": "lloesche/valheim-server",
+    "tag": "latest",
+    "ports": [
+      2456,
+      2457
+    ],
+    "portProtocols": {
+      "2456": [
+        "udp"
+      ],
+      "2457": [
+        "udp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}/config:/config",
+      "{BOT_DIR}/data:/opt/valheim"
+    ],
+    "workdir": "/config",
+    "env": {
+      "SERVER_NAME": "ADPanel Valheim Server",
+      "SERVER_PORT": "2456",
+      "WORLD_NAME": "Dedicated",
+      "SERVER_PASS": "change-me",
+      "SERVER_PUBLIC": "true",
+      "BACKUPS": "true",
+      "BACKUPS_CRON": "0 * * * *",
+      "BACKUPS_DIRECTORY": "/config/backups",
+      "RESTART_IF_IDLE": "true",
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "install": {
+      "image": "alpine:3.20",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/config/worlds /mnt/server/config/backups /mnt/server/data\nchmod -R 775 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/config",
+      "minimumStorageMb": 6000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/lloesche/valheim-server",
+    "https://github.com/lloesche/valheim-server-docker"
+  ],
+  "requirements": {
+    "minimumRamMb": 2048,
+    "recommendedRamMb": 4096,
+    "minimumStorageMb": 6000,
+    "passwordMinimumLength": 5
+  }
+}

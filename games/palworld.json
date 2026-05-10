@@ -1,0 +1,70 @@
+{
+  "id": "palworld",
+  "name": "Palworld",
+  "description": "Palworld dedicated server template using thijsvanloef/palworld-server-docker. It persists /palworld, enables automatic installation/update on boot, RCON, query and multithreaded startup options.",
+  "defaultPort": 8211,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/palworld-logo.avif",
+  "docker": {
+    "image": "thijsvanloef/palworld-server-docker",
+    "tag": "latest",
+    "ports": [
+      8211,
+      27015,
+      25575
+    ],
+    "portProtocols": {
+      "8211": [
+        "udp"
+      ],
+      "27015": [
+        "udp"
+      ],
+      "25575": [
+        "tcp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/palworld"
+    ],
+    "workdir": "/palworld",
+    "env": {
+      "PUID": "1000",
+      "PGID": "1000",
+      "PORT": "8211",
+      "QUERY_PORT": "27015",
+      "PLAYERS": "16",
+      "SERVER_NAME": "ADPanel Palworld Server",
+      "SERVER_DESCRIPTION": "Palworld server hosted with ADPanel",
+      "SERVER_PASSWORD": "",
+      "ADMIN_PASSWORD": "change-me",
+      "COMMUNITY": "false",
+      "MULTITHREADING": "true",
+      "RCON_ENABLED": "true",
+      "RCON_PORT": "25575",
+      "UPDATE_ON_BOOT": "true",
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "install": {
+      "image": "alpine:3.20",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server\nchown -R 1000:1000 /mnt/server\nchmod -R 775 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/palworld",
+      "minimumStorageMb": 12000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/thijsvanloef/palworld-server-docker",
+    "https://palworld-server-docker.loef.dev/"
+  ],
+  "requirements": {
+    "minimumRamMb": 6144,
+    "recommendedRamMb": 16384,
+    "minimumStorageMb": 12000
+  }
+}

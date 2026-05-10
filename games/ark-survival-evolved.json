@@ -1,0 +1,78 @@
+{
+  "id": "ark-survival-evolved",
+  "name": "ARK: Survival Evolved",
+  "description": "ARK: Survival Evolved dedicated server template using hermsi/ark-server and ARK Server Tools. It persists the game server and backups, updates on start when enabled and exposes game, query and RCON ports.",
+  "defaultPort": 7777,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/ark-logo.avif",
+  "docker": {
+    "image": "hermsi/ark-server",
+    "tag": "latest",
+    "ports": [
+      7777,
+      7778,
+      27015,
+      27020
+    ],
+    "portProtocols": {
+      "7777": [
+        "udp"
+      ],
+      "7778": [
+        "udp"
+      ],
+      "27015": [
+        "udp"
+      ],
+      "27020": [
+        "tcp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}/server:/app",
+      "{BOT_DIR}/backups:/home/steam/ARK-Backups"
+    ],
+    "workdir": "/app",
+    "env": {
+      "SESSION_NAME": "ADPanel ARK Server",
+      "SERVER_MAP": "TheIsland",
+      "SERVER_PASSWORD": "",
+      "ADMIN_PASSWORD": "change-me",
+      "MAX_PLAYERS": "20",
+      "UPDATE_ON_START": "true",
+      "BACKUP_ON_STOP": "true",
+      "PRE_UPDATE_BACKUP": "true",
+      "WARN_ON_STOP": "true",
+      "ENABLE_CROSSPLAY": "false",
+      "DISABLE_BATTLEYE": "false",
+      "ARK_SERVER_VOLUME": "/app",
+      "GAME_CLIENT_PORT": "7777",
+      "UDP_SOCKET_PORT": "7778",
+      "RCON_PORT": "27020",
+      "SERVER_LIST_PORT": "27015",
+      "GAME_MOD_IDS": "",
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "install": {
+      "image": "alpine:3.20",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server /mnt/server/backups\nchmod -R 775 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/app",
+      "minimumStorageMb": 60000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/hermsi/ark-server",
+    "https://github.com/FezVrasta/ark-server-tools"
+  ],
+  "requirements": {
+    "minimumRamMb": 6144,
+    "recommendedRamMb": 12288,
+    "minimumStorageMb": 60000
+  }
+}

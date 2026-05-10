@@ -1,0 +1,62 @@
+{
+  "id": "redm",
+  "name": "RedM",
+  "description": "RedM Red Dead Redemption 2 roleplay server template using ich777/redmserver. It mirrors the stable FiveM style deployment, persists server files and exposes game plus web console ports.",
+  "defaultPort": 30120,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/redm-logo.avif",
+  "docker": {
+    "image": "ich777/redmserver",
+    "tag": "latest",
+    "ports": [
+      30120,
+      30110,
+      8080
+    ],
+    "portProtocols": {
+      "30120": [
+        "tcp",
+        "udp"
+      ],
+      "30110": [
+        "tcp",
+        "udp"
+      ],
+      "8080": [
+        "tcp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/serverdata/serverfiles"
+    ],
+    "workdir": "/serverdata/serverfiles",
+    "env": {
+      "DATA_DIR": "/serverdata",
+      "SERVER_DIR": "/serverdata/serverfiles",
+      "GAME_CONFIG": "server.cfg",
+      "SERVER_KEY": "change-me",
+      "SRV_ADR": "https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/",
+      "MANUAL_UPDATES": "",
+      "ENABLE_WEBCONSOLE": "true",
+      "UID": "99",
+      "GID": "100",
+      "START_VARS": "+set gamename rdr3"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "install": null,
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/ich777/redmserver",
+    "https://keymaster.fivem.net/"
+  ],
+  "requirements": {
+    "minimumRamMb": 2048,
+    "recommendedRamMb": 4096,
+    "minimumStorageMb": 8192,
+    "requiresServerKey": true
+  }
+}

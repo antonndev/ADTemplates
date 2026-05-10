@@ -1,0 +1,59 @@
+{
+  "id": "assetto-corsa",
+  "name": "Assetto Corsa",
+  "description": "Assetto Corsa server manager template using seejy/assetto-server-manager. It provides the web UI on 8772, persists the Assetto server install and creates a starter config.yml for SteamCMD-based installs.",
+  "defaultPort": 8772,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/assettocorsa-logo.avif",
+  "docker": {
+    "image": "seejy/assetto-server-manager",
+    "tag": "latest",
+    "ports": [
+      8772,
+      9600,
+      8081
+    ],
+    "portProtocols": {
+      "8772": [
+        "tcp"
+      ],
+      "9600": [
+        "tcp",
+        "udp"
+      ],
+      "8081": [
+        "tcp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}/assetto:/home/assetto/server-manager/assetto",
+      "{BOT_DIR}/config.yml:/home/assetto/server-manager/config.yml"
+    ],
+    "workdir": "/home/assetto/server-manager",
+    "env": {
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "install": {
+      "image": "alpine:3.20",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/assetto\nif [ ! -f /mnt/server/config.yml ]; then\ncat > /mnt/server/config.yml <<'EOF'\nsteam:\n  username: \"\"\n  password: \"\"\n  install_path: assetto\n  executable_path: acServer\n  force_update: false\nhttp:\n  hostname: 0.0.0.0:8772\n  session_key: change-this-session-key\n  server_manager_base_URL:\n  session_store_type: cookie\n  session_store_path: \"\"\n  tls:\n    enabled: false\n    cert_path: \"\"\n    key_path: \"\"\nmonitoring:\n  enabled: false\nstore:\n  type: boltdb\n  path: server_manager.db\n  shared_data_path:\n  scheduled_event_check_loop: 0s\naccounts:\n  admin_password_override: \"\"\nlive_map:\n  refresh_interval_ms: 500\nserver:\n  audit_logging: true\n  performance_mode: false\n  dont_open_browser: true\n  scan_content_folder_for_changes: false\n  use_car_name_cache: true\n  persist_mid_session_results: false\n  plugins: []\nchampionships:\n  recaptcha:\n    site_key:\n    secret_key:\nlua:\n  enabled: false\nEOF\nfi\nchmod -R 775 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/home/assetto/server-manager",
+      "minimumStorageMb": 20000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/seejy/assetto-server-manager",
+    "https://github.com/JustaPenguin/assetto-server-manager/blob/master/cmd/server-manager/config.example.yml"
+  ],
+  "requirements": {
+    "minimumRamMb": 2048,
+    "recommendedRamMb": 4096,
+    "minimumStorageMb": 20000,
+    "requiresSteamAccountForInstall": true
+  }
+}

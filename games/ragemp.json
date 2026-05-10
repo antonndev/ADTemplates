@@ -1,0 +1,61 @@
+{
+  "id": "ragemp",
+  "name": "RAGE:MP",
+  "description": "RAGE Multiplayer server template for GTA V multiplayer projects. It uses bambutz/ragemp, persists /ragemp, and exposes the UDP game port plus the TCP HTTP port.",
+  "defaultPort": 22005,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/ragemp-logo.avif",
+  "docker": {
+    "image": "bambutz/ragemp",
+    "tag": "latest",
+    "ports": [
+      22005,
+      22006
+    ],
+    "portProtocols": {
+      "22005": [
+        "udp"
+      ],
+      "22006": [
+        "tcp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/ragemp"
+    ],
+    "workdir": "/ragemp",
+    "env": {
+      "RAGEMP_ANNOUNCE": "false",
+      "RAGEMP_BIND": "0.0.0.0",
+      "RAGEMP_GAMEMODE": "freeroam",
+      "RAGEMP_MAXPLAYERS": "500",
+      "RAGEMP_NAME": "ADPanel RAGE:MP Server",
+      "RAGEMP_PORT": "22005",
+      "RAGEMP_LANGUAGE": "en",
+      "RAGEMP_VOICE_CHAT": "false",
+      "RAGEMP_CSHARP": "false",
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "install": {
+      "image": "alpine:3.20",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server\nchmod -R 775 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/ragemp",
+      "minimumStorageMb": 2048
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin"
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/bambutz/ragemp",
+    "https://github.com/BamButz/docker-ragemp"
+  ],
+  "requirements": {
+    "minimumRamMb": 1024,
+    "recommendedRamMb": 2048,
+    "minimumStorageMb": 2048
+  }
+}
