@@ -30,7 +30,7 @@
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server\nchown -R 1000:1000 /mnt/server\nchmod -R 775 /mnt/server",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/data /mnt/server/logs /mnt/server/cache\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/server",
       "minimumStorageMb": 12000

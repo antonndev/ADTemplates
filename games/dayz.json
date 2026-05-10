@@ -46,7 +46,7 @@
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server\nchmod -R 775 /mnt/server",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/serverfiles /mnt/server/lgsm/config-lgsm/dayzserver /mnt/server/log /mnt/server/backups\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/data",
       "minimumStorageMb": 20000

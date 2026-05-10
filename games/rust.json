@@ -52,7 +52,7 @@
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server\nchmod -R 775 /mnt/server",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server/adpanel /mnt/server/oxide /mnt/server/cfg\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/steamcmd/rust",
       "minimumStorageMb": 12000

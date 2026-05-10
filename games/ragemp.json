@@ -33,13 +33,15 @@
       "RAGEMP_LANGUAGE": "en",
       "RAGEMP_VOICE_CHAT": "false",
       "RAGEMP_CSHARP": "false",
+      "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT": "1",
+      "COMPlus_GlobalizationInvariant": "1",
       "TZ": "Etc/UTC"
     },
     "command": "",
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server\nchmod -R 775 /mnt/server",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/resources /mnt/server/packages /mnt/server/plugins /mnt/server/maps\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/ragemp",
       "minimumStorageMb": 2048
