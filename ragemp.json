@@ -1,0 +1,71 @@
+{
+  "id": "ragemp",
+  "name": "RAGE:MP",
+  "description": "RAGE Multiplayer server template for GTA V multiplayer projects. It uses bambutz/ragemp, persists /ragemp, and exposes the UDP game port plus the TCP HTTP port.",
+  "defaultPort": 22005,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/ragemp-logo.avif",
+  "docker": {
+    "image": "bambutz/ragemp",
+    "tag": "latest",
+    "ports": [
+      22005,
+      22006
+    ],
+    "portProtocols": {
+      "22005": [
+        "udp"
+      ],
+      "22006": [
+        "tcp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/ragemp"
+    ],
+    "workdir": "/ragemp",
+    "env": {
+      "RAGEMP_ANNOUNCE": "false",
+      "RAGEMP_BIND": "0.0.0.0",
+      "RAGEMP_GAMEMODE": "freeroam",
+      "RAGEMP_MAXPLAYERS": "500",
+      "RAGEMP_NAME": "ADPanel RAGE:MP Server",
+      "RAGEMP_PORT": "22005",
+      "RAGEMP_LANGUAGE": "en",
+      "RAGEMP_VOICE_CHAT": "false",
+      "RAGEMP_CSHARP": "false",
+      "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT": "1",
+      "COMPlus_GlobalizationInvariant": "1",
+      "PATH": "/ragemp/dotnet/runtime:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "LD_LIBRARY_PATH": "/ragemp/dotnet/runtime:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu",
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "startupDisplay": "",
+    "install": {
+      "image": "ghcr.io/pterodactyl/installers:debian",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/resources /mnt/server/packages /mnt/server/plugins /mnt/server/maps /mnt/server/dotnet/resources /mnt/server/dotnet/runtime\nif [ ! -f /mnt/server/dotnet/runtime/dotnet ]; then\ncat > /mnt/server/dotnet/runtime/dotnet <<'EOF'\n#!/bin/sh\nexit 0\nEOF\nfi\nif [ ! -f /mnt/server/dotnet/runtime/libssl.so.1.1 ] || [ ! -f /mnt/server/dotnet/runtime/libcrypto.so.1.1 ]; then\n  curl -fsSL -o /tmp/libssl1.1.deb http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u5_amd64.deb\n  rm -rf /tmp/libssl1.1\n  mkdir -p /tmp/libssl1.1\n  dpkg-deb -x /tmp/libssl1.1.deb /tmp/libssl1.1\n  cp /tmp/libssl1.1/usr/lib/x86_64-linux-gnu/libssl.so.1.1 /mnt/server/dotnet/runtime/libssl.so.1.1\n  cp /tmp/libssl1.1/usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 /mnt/server/dotnet/runtime/libcrypto.so.1.1\nfi\ncat > /tmp/adpanel-ragemp-acl.xml <<'EOF'\n<?xml version=\"1.0\"?>\n<acl xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <group name=\"Everyone\">\n    <acl name=\"Default\" />\n    <object name=\"user.*\" />\n    <object name=\"resource.*\" />\n  </group>\n  <acl name=\"Default\" />\n</acl>\nEOF\nfor target in /mnt/server/acl.xml /mnt/server/dotnet/acl.xml /mnt/server/dotnet/runtime/acl.xml /mnt/server/resources/acl.xml; do\n  if [ ! -f \"$target\" ]; then\n    cp /tmp/adpanel-ragemp-acl.xml \"$target\"\n  fi\ndone\nchmod +x /mnt/server/dotnet/runtime/dotnet\nchmod -R 777 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/ragemp",
+      "timeoutSeconds": 1800,
+      "minimumStorageMb": 2048
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin",
+      "targetProcesses": [
+        "ragemp-server",
+        "ragemp"
+      ]
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/bambutz/ragemp",
+    "https://github.com/BamButz/docker-ragemp"
+  ],
+  "requirements": {
+    "minimumRamMb": 1024,
+    "recommendedRamMb": 2048,
+    "minimumStorageMb": 2048
+  }
+}

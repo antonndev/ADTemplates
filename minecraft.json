@@ -1,0 +1,46 @@
+{
+  "id": "minecraft",
+  "name": "Minecraft",
+  "description": "Minecraft Java server template matching the currently installed ADPanel Minecraft runtime. It uses a persistent /data directory and a Java 21 runtime for modern Paper, Spigot, Vanilla, Forge or Fabric server jars.",
+  "defaultPort": 25565,
+  "templateImage": "/images/minecraft.webp",
+  "docker": {
+    "image": "eclipse-temurin",
+    "tag": "21-jre",
+    "ports": [
+      25565
+    ],
+    "portProtocols": {
+      "25565": [
+        "tcp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/data"
+    ],
+    "workdir": "/data",
+    "env": {},
+    "command": "java -Xms128M -Xmx{RAM_MB}M -jar /data/server.jar nogui",
+    "adpanelStartup": "",
+    "startupDisplay": "",
+    "install": null,
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin",
+      "targetProcesses": [
+        "java",
+        "bedrock_server"
+      ]
+    },
+    "javaVersion": "21"
+  },
+  "documentation": [
+    "https://hub.docker.com/_/eclipse-temurin",
+    "https://hub.docker.com/r/itzg/minecraft-server"
+  ],
+  "requirements": {
+    "minimumRamMb": 1024,
+    "recommendedRamMb": 4096,
+    "minimumStorageMb": 2048
+  }
+}

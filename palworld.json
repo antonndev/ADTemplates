@@ -1,0 +1,76 @@
+{
+  "id": "palworld",
+  "name": "Palworld",
+  "description": "Palworld dedicated server template using thijsvanloef/palworld-server-docker. It persists /palworld, enables automatic installation/update on boot, RCON, query and multithreaded startup options.",
+  "defaultPort": 8211,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/palworld-logo.avif",
+  "docker": {
+    "image": "thijsvanloef/palworld-server-docker",
+    "tag": "latest",
+    "ports": [
+      8211,
+      27015,
+      25575
+    ],
+    "portProtocols": {
+      "8211": [
+        "udp"
+      ],
+      "25575": [
+        "tcp"
+      ],
+      "27015": [
+        "udp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/palworld"
+    ],
+    "workdir": "/home/steam/server",
+    "env": {
+      "PUID": "1000",
+      "PGID": "1000",
+      "PORT": "8211",
+      "QUERY_PORT": "27015",
+      "PLAYERS": "16",
+      "SERVER_NAME": "ADPanel Palworld Server",
+      "SERVER_DESCRIPTION": "Palworld server hosted with ADPanel",
+      "SERVER_PASSWORD": "",
+      "ADMIN_PASSWORD": "change-me",
+      "COMMUNITY": "false",
+      "MULTITHREADING": "true",
+      "RCON_ENABLED": "true",
+      "RCON_PORT": "25575",
+      "UPDATE_ON_BOOT": "true",
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "startupDisplay": "/home/steam/server/init.sh",
+    "install": {
+      "image": "ghcr.io/pterodactyl/installers:debian",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/Pal/Saved/Config/LinuxServer /mnt/server/Pal/Saved/SaveGames\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/palworld",
+      "timeoutSeconds": 1800,
+      "minimumStorageMb": 12000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin",
+      "targetProcesses": [
+        "PalServer-Linux-Test",
+        "PalServer"
+      ]
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/thijsvanloef/palworld-server-docker",
+    "https://palworld-server-docker.loef.dev/"
+  ],
+  "requirements": {
+    "minimumRamMb": 6144,
+    "recommendedRamMb": 16384,
+    "minimumStorageMb": 12000
+  }
+}

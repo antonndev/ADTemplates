@@ -1,0 +1,88 @@
+{
+  "id": "7-days-to-die",
+  "name": "7 Days to Die",
+  "description": "7 Days to Die dedicated server template using vinanrra/7dtd-server with LinuxGSM. It supports automatic install/start, stable branch selection, backups, monitoring and persistent server/config/save/log directories.",
+  "defaultPort": 26900,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/7daystodie-logo.avif",
+  "docker": {
+    "image": "vinanrra/7dtd-server",
+    "tag": "latest",
+    "ports": [
+      26900,
+      26901,
+      26902,
+      8080,
+      8081,
+      8082
+    ],
+    "portProtocols": {
+      "8080": [
+        "tcp"
+      ],
+      "8081": [
+        "tcp"
+      ],
+      "8082": [
+        "tcp"
+      ],
+      "26900": [
+        "tcp",
+        "udp"
+      ],
+      "26901": [
+        "udp"
+      ],
+      "26902": [
+        "udp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}/saves:/home/sdtdserver/.local/share/7DaysToDie",
+      "{BOT_DIR}/config:/home/sdtdserver/lgsm/config-lgsm/sdtdserver",
+      "{BOT_DIR}/serverfiles:/home/sdtdserver/serverfiles",
+      "{BOT_DIR}/logs:/home/sdtdserver/log",
+      "{BOT_DIR}/backups:/home/sdtdserver/lgsm/backup"
+    ],
+    "workdir": "/home/sdtdserver",
+    "env": {
+      "START_MODE": "1",
+      "VERSION": "stable",
+      "PUID": "1000",
+      "PGID": "1000",
+      "TimeZone": "Etc/UTC",
+      "BACKUP": "NO",
+      "MONITOR": "YES",
+      "TEST_ALERT": "NO",
+      "CHANGE_CONFIG_DIR_OWNERSHIP": "NO"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "startupDisplay": "/home/sdtdserver/user.sh",
+    "install": {
+      "image": "ghcr.io/pterodactyl/installers:debian",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/saves /mnt/server/config /mnt/server/serverfiles /mnt/server/logs /mnt/server/backups\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/home/sdtdserver/serverfiles",
+      "timeoutSeconds": 1800,
+      "minimumStorageMb": 20000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin",
+      "targetProcesses": [
+        "7DaysToDieServer",
+        "7DaysToDieServer.x86_64"
+      ]
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/vinanrra/7dtd-server",
+    "https://github.com/vinanrra/Docker-7DaysToDie/blob/master/docs/parameters.md",
+    "https://linuxgsm.com/servers/sdtdserver/"
+  ],
+  "requirements": {
+    "minimumRamMb": 6144,
+    "recommendedRamMb": 8192,
+    "minimumStorageMb": 20000
+  }
+}

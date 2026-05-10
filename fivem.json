@@ -1,0 +1,68 @@
+{
+  "id": "fivem",
+  "name": "FiveM",
+  "description": "FiveM GTA V roleplay server template using ich777/fivemserver. The container downloads artifacts automatically, persists server files, and exposes the game, auxiliary and web console ports.",
+  "defaultPort": 30120,
+  "templateImage": "https://logos-world.net/wp-content/uploads/2021/03/FiveM-Symbol.png",
+  "docker": {
+    "image": "ich777/fivemserver",
+    "tag": "latest",
+    "ports": [
+      30120,
+      30110,
+      8080
+    ],
+    "portProtocols": {
+      "8080": [
+        "tcp"
+      ],
+      "30110": [
+        "tcp",
+        "udp"
+      ],
+      "30120": [
+        "tcp",
+        "udp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/serverdata/serverfiles"
+    ],
+    "workdir": "/serverdata/serverfiles",
+    "env": {
+      "DATA_DIR": "/serverdata",
+      "SERVER_DIR": "/serverdata/serverfiles",
+      "GAME_CONFIG": "server.cfg",
+      "SERVER_KEY": "change-me",
+      "SRV_ADR": "https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/",
+      "MANUAL_UPDATES": "",
+      "ENABLE_WEBCONSOLE": "true",
+      "UID": "99",
+      "GID": "100",
+      "START_VARS": ""
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "startupDisplay": "",
+    "install": null,
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin",
+      "targetProcesses": [
+        "FXServer",
+        "fxserver"
+      ]
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/ich777/fivemserver",
+    "https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/",
+    "https://keymaster.fivem.net/"
+  ],
+  "requirements": {
+    "minimumRamMb": 2048,
+    "recommendedRamMb": 4096,
+    "minimumStorageMb": 8192,
+    "requiresServerKey": true
+  }
+}

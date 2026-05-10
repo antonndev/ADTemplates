@@ -1,0 +1,76 @@
+{
+  "id": "dayz",
+  "name": "DayZ",
+  "description": "DayZ dedicated server template using the weekly LinuxGSM gameservermanagers/gameserver:dayz image. It persists the full LinuxGSM home directory under /data and exposes the standard DayZ game/query ports.",
+  "defaultPort": 2302,
+  "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/dayz-logo.avif",
+  "docker": {
+    "image": "gameservermanagers/gameserver",
+    "tag": "dayz",
+    "ports": [
+      2302,
+      2303,
+      2304,
+      2305,
+      8766,
+      27016
+    ],
+    "portProtocols": {
+      "2302": [
+        "udp"
+      ],
+      "2303": [
+        "udp"
+      ],
+      "2304": [
+        "udp"
+      ],
+      "2305": [
+        "udp"
+      ],
+      "8766": [
+        "udp"
+      ],
+      "27016": [
+        "udp"
+      ]
+    },
+    "volumes": [
+      "{BOT_DIR}:/data"
+    ],
+    "workdir": "/app",
+    "env": {
+      "TZ": "Etc/UTC"
+    },
+    "command": "",
+    "adpanelStartup": "",
+    "startupDisplay": "/bin/bash ./entrypoint.sh",
+    "install": {
+      "image": "ghcr.io/pterodactyl/installers:debian",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/serverfiles /mnt/server/lgsm/config-lgsm/dayzserver /mnt/server/log /mnt/server/backups\nchmod -R 777 /mnt/server",
+      "mountPath": "/mnt/server",
+      "runtimePath": "/data",
+      "timeoutSeconds": 1800,
+      "minimumStorageMb": 20000
+    },
+    "restart": "unless-stopped",
+    "console": {
+      "type": "stdin",
+      "targetProcesses": [
+        "DayZServer",
+        "DayZServer_x64",
+        "dayzserver"
+      ]
+    }
+  },
+  "documentation": [
+    "https://hub.docker.com/r/gameservermanagers/gameserver",
+    "https://github.com/GameServerManagers/LinuxGSM/blob/master/lgsm/data/serverlist.csv",
+    "https://linuxgsm.com/servers/dayzserver/"
+  ],
+  "requirements": {
+    "minimumRamMb": 4096,
+    "recommendedRamMb": 8192,
+    "minimumStorageMb": 20000
+  }
+}
