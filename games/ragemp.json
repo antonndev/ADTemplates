@@ -41,7 +41,7 @@
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/resources /mnt/server/packages /mnt/server/plugins /mnt/server/maps\nchmod -R 777 /mnt/server",
+      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/resources /mnt/server/packages /mnt/server/plugins /mnt/server/maps /mnt/server/dotnet/resources\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/ragemp",
       "minimumStorageMb": 2048
