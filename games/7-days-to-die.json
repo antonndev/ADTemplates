@@ -43,6 +43,7 @@
       "{BOT_DIR}/logs:/home/sdtdserver/log",
       "{BOT_DIR}/backups:/home/sdtdserver/lgsm/backup"
     ],
+    "runAsRoot": true,
     "workdir": "/home/sdtdserver",
     "env": {
       "START_MODE": "1",
