@@ -1,12 +1,12 @@
 {
   "id": "rust",
   "name": "Rust",
-  "description": "Rust dedicated server template using didstopia/rust-server. The image installs and updates the server on startup, stores all data under /steamcmd/rust and supports WebRCON plus Rust+.",
+  "description": "Rust dedicated server template using the Pterodactyl Rust runtime image, an explicit SteamCMD install, and native library validation for libRustNative.so.",
   "defaultPort": 28015,
   "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/rust-logo.avif",
   "docker": {
-    "image": "didstopia/rust-server",
-    "tag": "full",
+    "image": "ghcr.io/pterodactyl/games",
+    "tag": "rust",
     "ports": [
       28015,
       28016,
@@ -26,50 +26,74 @@
       ]
     },
     "volumes": [
-      "{BOT_DIR}:/steamcmd/rust"
+      "{BOT_DIR}:/home/container"
     ],
-    "workdir": "/",
+    "workdir": "/home/container",
     "env": {
-      "RUST_SERVER_STARTUP_ARGUMENTS": "-batchmode -load -nographics +server.secure 1",
-      "RUST_SERVER_IDENTITY": "adpanel",
-      "RUST_SERVER_PORT": "28015",
-      "RUST_SERVER_QUERYPORT": "28016",
-      "RUST_SERVER_SEED": "12345",
-      "RUST_SERVER_WORLDSIZE": "3500",
-      "RUST_SERVER_NAME": "ADPanel Rust Server",
-      "RUST_SERVER_DESCRIPTION": "Rust server hosted with ADPanel",
-      "RUST_SERVER_MAXPLAYERS": "100",
-      "RUST_RCON_WEB": "1",
-      "RUST_RCON_PORT": "28016",
-      "RUST_RCON_PASSWORD": "change-me",
-      "RUST_APP_PORT": "28082",
-      "RUST_UPDATE_CHECKING": "1",
-      "RUST_UPDATE_BRANCH": "public",
-      "RUST_OXIDE_ENABLED": "0",
-      "TZ": "Etc/UTC"
+      "STARTUP": "./RustDedicated -batchmode -nographics -logfile \\\"{{LOG_FILE}}\\\" +server.ip 0.0.0.0 +server.port {{SERVER_PORT}} +server.queryport {{QUERY_PORT}} +server.identity \\\"{{SERVER_IDENTITY}}\\\" +server.level \\\"{{SERVER_LEVEL}}\\\" +server.seed {{SERVER_SEED}} +server.worldsize {{WORLD_SIZE}} +server.hostname \\\"{{SERVER_NAME}}\\\" +server.description \\\"{{SERVER_DESCRIPTION}}\\\" +server.maxplayers {{MAX_PLAYERS}} +server.secure {{SERVER_SECURE}} +rcon.ip 0.0.0.0 +rcon.web {{RCON_WEB}} +rcon.port {{RCON_PORT}} +rcon.password \\\"{{RCON_PASS}}\\\" +app.port {{RUST_PLUS_PORT}} +server.saveinterval {{SAVE_INTERVAL}} {{ADDITIONAL_ARGS}}",
+      "AUTO_UPDATE": "0",
+      "FRAMEWORK": "",
+      "OXIDE": "0",
+      "LD_LIBRARY_PATH": "/home/container/RustDedicated_Data/Plugins/x86_64:/home/container",
+      "LOG_FILE": "/home/container/logs/rust.log",
+      "SERVER_PORT": "28015",
+      "QUERY_PORT": "28016",
+      "RCON_PORT": "28016",
+      "RUST_PLUS_PORT": "28082",
+      "SERVER_IDENTITY": "adpanel",
+      "SERVER_LEVEL": "Procedural Map",
+      "SERVER_SEED": "12345",
+      "WORLD_SIZE": "3500",
+      "SERVER_NAME": "ADPanel Rust Server",
+      "SERVER_DESCRIPTION": "Rust server hosted with ADPanel",
+      "MAX_PLAYERS": "100",
+      "SERVER_SECURE": "1",
+      "RCON_WEB": "true",
+      "RCON_PASSWORD": "change-me",
+      "SAVE_INTERVAL": "300",
+      "ADDITIONAL_ARGS": "",
+      "TZ": "Etc/UTC",
+      "RCON_PASS": "change-me",
+      "RCON_IP": "127.0.0.1"
     },
     "command": "",
-    "startupDisplay": "/entrypoint.sh bash /app/start.sh",
+    "startupDisplay": "/bin/bash /entrypoint.sh",
     "adpanelStartup": "",
     "install": {
-      "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server/adpanel /mnt/server/oxide /mnt/server/cfg\nchmod -R 777 /mnt/server",
+      "image": "ghcr.io/pterodactyl/games:rust",
+      "script": "#!/bin/bash\nset -Eeuo pipefail\n\ncd /mnt/server\nexport HOME=/mnt/server\n\nappid=\"${SRCDS_APPID:-258550}\"\nsteam_user=\"${STEAM_USER:-anonymous}\"\nsteam_pass=\"${STEAM_PASS:-}\"\nsteam_auth=\"${STEAM_AUTH:-}\"\nbeta_id=\"${SRCDS_BETAID:-}\"\nbeta_pass=\"${SRCDS_BETAPASS:-}\"\ninstall_flags=\"${INSTALL_FLAGS:-}\"\n\nmkdir -p /mnt/server/steamcmd /mnt/server/steamapps /mnt/server/server/adpanel /mnt/server/cfg /mnt/server/logs /mnt/server/.steam/sdk32 /mnt/server/.steam/sdk64\n\ninstall_steamcmd() {\n  local tmp\n  tmp=\"$(mktemp -d)\"\n  trap 'rm -rf \"$tmp\"' RETURN\n  curl --fail --location --show-error --retry 5 --retry-delay 3 --connect-timeout 20 \\\n    -o \"$tmp/steamcmd_linux.tar.gz\" \\\n    https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz\n  tar -xzf \"$tmp/steamcmd_linux.tar.gz\" -C /mnt/server/steamcmd\n}\n\nif [ ! -x /mnt/server/steamcmd/steamcmd.sh ]; then\n  install_steamcmd\nfi\n\nsteamcmd=(/mnt/server/steamcmd/steamcmd.sh +force_install_dir /mnt/server +login \"$steam_user\")\nif [ -n \"$steam_pass\" ]; then\n  steamcmd+=(\"$steam_pass\")\nfi\nif [ -n \"$steam_auth\" ]; then\n  steamcmd+=(\"$steam_auth\")\nfi\nif [ \"${WINDOWS_INSTALL:-0}\" = \"1\" ]; then\n  steamcmd+=(+@sSteamCmdForcePlatformType windows)\nfi\nsteamcmd+=(+app_update \"$appid\")\nif [ -n \"$beta_id\" ]; then\n  steamcmd+=(-beta \"$beta_id\")\nfi\nif [ -n \"$beta_pass\" ]; then\n  steamcmd+=(-betapassword \"$beta_pass\")\nfi\nif [ -n \"$install_flags\" ]; then\n  # shellcheck disable=SC2206\n  extra_flags=($install_flags)\n  steamcmd+=(\"${extra_flags[@]}\")\nfi\nsteamcmd+=(validate +quit)\n\nfor attempt in 1 2 3 4; do\n  echo \"Installing Rust Dedicated Server app $appid with SteamCMD (attempt $attempt/4)\"\n  if \"${steamcmd[@]}\"; then\n    break\n  fi\n  if [ \"$attempt\" = \"4\" ]; then\n    echo \"Rust SteamCMD install failed after 4 attempts\" >&2\n    exit 21\n  fi\n  sleep $((attempt * 10))\n  install_steamcmd\n  chmod +x /mnt/server/steamcmd/steamcmd.sh || true\ndone\n\nif [ ! -x /mnt/server/RustDedicated ]; then\n  echo \"RustDedicated executable is missing after SteamCMD install\" >&2\n  exit 22\nfi\n\nnative_dir=/mnt/server/RustDedicated_Data/Plugins/x86_64\nnative_lib=\"$native_dir/libRustNative.so\"\nif [ ! -f \"$native_lib\" ]; then\n  echo \"libRustNative.so is missing at $native_lib after SteamCMD validate\" >&2\n  echo \"The install is incomplete; rerun setup or check SteamCMD output above.\" >&2\n  exit 23\nfi\n\nchmod 755 /mnt/server/RustDedicated\nchmod -R 755 \"$native_dir\"\n\nif command -v ldd >/dev/null 2>&1; then\n  missing_libs=\"$(ldd \"$native_lib\" 2>/dev/null | awk '/not found/ {print $1}' | sort -u | xargs echo -n)\"\n  if [ -n \"$missing_libs\" ]; then\n    echo \"libRustNative.so has missing runtime dependencies: $missing_libs\" >&2\n    exit 24\n  fi\nfi\n\nif [ -f /mnt/server/steamcmd/linux32/steamclient.so ]; then\n  cp -f /mnt/server/steamcmd/linux32/steamclient.so /mnt/server/.steam/sdk32/steamclient.so\nfi\nif [ -f /mnt/server/steamcmd/linux64/steamclient.so ]; then\n  cp -f /mnt/server/steamcmd/linux64/steamclient.so /mnt/server/.steam/sdk64/steamclient.so\nfi\n\nchown -R 1000:1000 /mnt/server 2>/dev/null || true\nchmod -R u+rwX,go+rX /mnt/server\nchmod -R 755 \"$native_dir\"\n\necho \"Rust Dedicated Server installed and native libraries validated.\"",
       "mountPath": "/mnt/server",
-      "runtimePath": "/steamcmd/rust",
-      "minimumStorageMb": 12000
+      "runtimePath": "/home/container",
+      "minimumStorageMb": 20000,
+      "timeoutSeconds": 3600,
+      "env": {
+        "SRCDS_APPID": "258550",
+        "STEAM_USER": "anonymous",
+        "STEAM_PASS": "",
+        "STEAM_AUTH": "",
+        "SRCDS_BETAID": "",
+        "SRCDS_BETAPASS": "",
+        "INSTALL_FLAGS": "",
+        "WINDOWS_INSTALL": "0"
+      }
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "RustDedicated"
+      ]
     }
   },
   "documentation": [
-    "https://hub.docker.com/r/didstopia/rust-server",
-    "https://wiki.facepunch.com/rust/rust-companion-server"
+    "https://developer.valvesoftware.com/wiki/Dedicated_Servers_List",
+    "https://developer.valvesoftware.com/wiki/Rust_Dedicated_Server",
+    "https://eggs.pterodactyl.io/egg/games-rust-staging/",
+    "https://github.com/pterodactyl/yolks/blob/master/games/rust/Dockerfile"
   ],
   "requirements": {
     "minimumRamMb": 4096,
     "recommendedRamMb": 8192,
-    "minimumStorageMb": 12000
+    "minimumStorageMb": 20000
   }
 }

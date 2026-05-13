@@ -13,15 +13,15 @@
       8081
     ],
     "portProtocols": {
+      "8081": [
+        "tcp"
+      ],
       "8772": [
         "tcp"
       ],
       "9600": [
         "tcp",
         "udp"
-      ],
-      "8081": [
-        "tcp"
       ]
     },
     "volumes": [
@@ -35,7 +35,7 @@
     "env": {
       "TZ": "Etc/UTC",
       "HOME": "/home/assetto/server-manager/steam-home",
-      "PATH": "/home/assetto/server-manager/steamcmd:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "PATH": "/home/assetto/server-manager/steamcmd:/opt/steamcmd:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
       "STEAM_USER": "",
       "STEAM_PASS": "",
       "STEAM_AUTH": "",
@@ -46,14 +46,19 @@
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/bash\nset -Eeuo pipefail\nsteam_root=/mnt/server/steamcmd\nsteam_home=/mnt/server/steam-home\ninstall_dir=/mnt/server/assetto\nmkdir -p \"$install_dir\" \"$steam_root\" \"$steam_home\" /mnt/server/dot-steam\ninstall_steamcmd() {\n  rm -f /tmp/steamcmd.tar.gz\n  curl --retry 5 --retry-delay 2 --connect-timeout 20 -fsSL -o /tmp/steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz\n  tar -xzf /tmp/steamcmd.tar.gz -C \"$steam_root\"\n}\nif [ ! -x \"$steam_root/steamcmd.sh\" ] || [ ! -x \"$steam_root/linux32/steamcmd\" ]; then\n  rm -rf \"$steam_root\"\n  mkdir -p \"$steam_root\"\n  install_steamcmd\nfi\ncat > \"$steam_root/steamcmd\" <<'EOF'\n#!/bin/sh\nexport HOME=\"${HOME:-/home/assetto/server-manager/steam-home}\"\nexec /home/assetto/server-manager/steamcmd/steamcmd.sh \"$@\"\nEOF\nchmod +x \"$steam_root/steamcmd\" \"$steam_root/steamcmd.sh\"\nfor attempt in 1 2 3 4 5; do\n  if HOME=\"$steam_home\" \"$steam_root/steamcmd.sh\" +quit; then\n    break\n  fi\n  status=$?\n  if [ \"$attempt\" -eq 5 ]; then\n    exit \"$status\"\n  fi\n  rm -rf \"$steam_root/package\" \"$steam_root/linux32/steamcmd\"\n  install_steamcmd\n  sleep $((attempt * 5))\ndone\nsteam_username=\"${STEAM_USER:-}\"\nsteam_password=\"${STEAM_PASS:-}\"\nsteam_username=\"${steam_username//\\\"/}\"\nsteam_password=\"${steam_password//\\\"/}\"\nif [ ! -f /mnt/server/config.yml ]; then\ncat > /mnt/server/config.yml <<EOF\nsteam:\n  username: \"$steam_username\"\n  password: \"$steam_password\"\n  install_path: assetto\n  executable_path: acServer\n  force_update: false\nhttp:\n  hostname: 0.0.0.0:8772\n  session_key: change-this-session-key\n  server_manager_base_URL:\n  session_store_type: cookie\n  session_store_path: \"\"\n  tls:\n    enabled: false\n    cert_path: \"\"\n    key_path: \"\"\nmonitoring:\n  enabled: false\nstore:\n  type: boltdb\n  path: server_manager.db\n  shared_data_path:\n  scheduled_event_check_loop: 0s\naccounts:\n  admin_password_override: \"\"\nlive_map:\n  refresh_interval_ms: 500\nserver:\n  audit_logging: true\n  performance_mode: false\n  dont_open_browser: true\n  scan_content_folder_for_changes: false\n  use_car_name_cache: true\n  persist_mid_session_results: false\n  plugins: []\nchampionships:\n  recaptcha:\n    site_key:\n    secret_key:\nlua:\n  enabled: false\nEOF\nelse\n  if [ -n \"${STEAM_USER:-}\" ]; then sed -i \"s/^  username: .*/  username: \\\"$steam_username\\\"/\" /mnt/server/config.yml || true; fi\n  if [ -n \"${STEAM_PASS:-}\" ]; then sed -i \"s/^  password: .*/  password: \\\"$steam_password\\\"/\" /mnt/server/config.yml || true; fi\nfi\nif [ ! -d \"$install_dir/system\" ] && [ \"${ASSETTO_PREINSTALL:-1}\" = \"1\" ]; then\n  if [ -z \"${STEAM_USER:-}\" ] || [ -z \"${STEAM_PASS:-}\" ]; then\n    echo \"Assetto Corsa Dedicated Server app 302550 must be installed before Server Manager starts. Set STEAM_USER and STEAM_PASS for a Steam account that can download the Assetto Corsa Dedicated Server tool, or upload an existing server install to /assetto.\"\n    exit 20\n  fi\n  login_args=(+login \"$STEAM_USER\" \"$STEAM_PASS\")\n  [ -z \"${STEAM_AUTH:-}\" ] || login_args+=(\"$STEAM_AUTH\")\n  for attempt in 1 2 3 4; do\n    if HOME=\"$steam_home\" \"$steam_root/steamcmd.sh\" +@sSteamCmdForcePlatformType windows +force_install_dir \"$install_dir\" \"${login_args[@]}\" +app_update 302550 validate +quit; then\n      break\n    fi\n    status=$?\n    if [ \"$attempt\" -eq 4 ]; then\n      exit \"$status\"\n    fi\n    rm -rf \"$steam_root/package\" \"$steam_root/linux32/steamcmd\"\n    install_steamcmd\n    sleep $((attempt * 15))\n  done\nfi\nif [ ! -d \"$install_dir/system\" ]; then\n  echo \"Assetto Corsa server files are still missing after setup. Refusing to start a broken Server Manager container.\"\n  exit 30\nfi\nchmod -R a+rwX /mnt/server",
+      "script": "#!/bin/bash\nset -Eeuo pipefail\nsteam_root=/mnt/server/steamcmd\nsteam_home=/mnt/server/steam-home\ninstall_dir=/mnt/server/assetto\nmkdir -p \"$install_dir\" \"$steam_root\" \"$steam_home\" /mnt/server/dot-steam\ninstall_steamcmd() {\n  rm -f /tmp/steamcmd.tar.gz\n  curl --retry 5 --retry-delay 2 --connect-timeout 20 -fsSL -o /tmp/steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz\n  tar -xzf /tmp/steamcmd.tar.gz -C \"$steam_root\"\n}\nif [ ! -x \"$steam_root/steamcmd.sh\" ] || [ ! -x \"$steam_root/linux32/steamcmd\" ]; then\n  rm -rf \"$steam_root\"\n  mkdir -p \"$steam_root\"\n  install_steamcmd\nfi\ncat > \"$steam_root/steamcmd\" <<'EOF'\n#!/bin/sh\nexport HOME=\"${HOME:-/home/assetto/server-manager/steam-home}\"\nexec /home/assetto/server-manager/steamcmd/steamcmd.sh \"$@\"\nEOF\nchmod +x \"$steam_root/steamcmd\" \"$steam_root/steamcmd.sh\"\nfor attempt in 1 2 3 4 5; do\n  if HOME=\"$steam_home\" \"$steam_root/steamcmd.sh\" +quit; then\n    break\n  fi\n  status=$?\n  if [ \"$attempt\" -eq 5 ]; then\n    exit \"$status\"\n  fi\n  rm -rf \"$steam_root/package\" \"$steam_root/linux32/steamcmd\"\n  install_steamcmd\n  sleep $((attempt * 5))\ndone\nsteam_username=\"${STEAM_USER:-}\"\nsteam_password=\"${STEAM_PASS:-}\"\nsteam_username=\"${steam_username//\\\"/}\"\nsteam_password=\"${steam_password//\\\"/}\"\nsteam_username=\"${steam_username//$'\\r'/}\"\nsteam_username=\"${steam_username//$'\\n'/}\"\nsteam_password=\"${steam_password//$'\\r'/}\"\nsteam_password=\"${steam_password//$'\\n'/}\"\nyaml_quote() {\n  printf \"'%s'\" \"$(printf '%s' \"$1\" | sed \"s/'/''/g\")\"\n}\nescape_sed_replacement() {\n  printf '%s' \"$1\" | sed -e 's/[\\/&\\\\]/\\\\&/g'\n}\nsteam_username_yaml=$(yaml_quote \"$steam_username\")\nsteam_password_yaml=$(yaml_quote \"$steam_password\")\nif [ ! -f /mnt/server/config.yml ]; then\ncat > /mnt/server/config.yml <<EOF\nsteam:\n  username: $steam_username_yaml\n  password: $steam_password_yaml\n  install_path: assetto\n  executable_path: acServer\n  force_update: false\nhttp:\n  hostname: 0.0.0.0:8772\n  session_key: change-this-session-key\n  server_manager_base_URL:\n  session_store_type: cookie\n  session_store_path: \"\"\n  tls:\n    enabled: false\n    cert_path: \"\"\n    key_path: \"\"\nmonitoring:\n  enabled: false\nstore:\n  type: boltdb\n  path: server_manager.db\n  shared_data_path:\n  scheduled_event_check_loop: 0s\naccounts:\n  admin_password_override: \"\"\nlive_map:\n  refresh_interval_ms: 500\nserver:\n  audit_logging: true\n  performance_mode: false\n  dont_open_browser: true\n  scan_content_folder_for_changes: false\n  use_car_name_cache: true\n  persist_mid_session_results: false\n  plugins: []\nchampionships:\n  recaptcha:\n    site_key:\n    secret_key:\nlua:\n  enabled: false\nEOF\nelse\n  if [ -n \"${STEAM_USER:-}\" ]; then sed -i \"s/^  username: .*/  username: $(escape_sed_replacement \"$steam_username_yaml\")/\" /mnt/server/config.yml || true; fi\n  if [ -n \"${STEAM_PASS:-}\" ]; then sed -i \"s/^  password: .*/  password: $(escape_sed_replacement \"$steam_password_yaml\")/\" /mnt/server/config.yml || true; fi\n  sed -i \"s/^  force_update: .*/  force_update: false/\" /mnt/server/config.yml || true\nfi\nif [ ! -d \"$install_dir/system\" ] && [ \"${ASSETTO_PREINSTALL:-1}\" = \"1\" ]; then\n  if [ -z \"${STEAM_USER:-}\" ] || [ \"${STEAM_USER}\" = \"anonymous\" ] || [ -z \"${STEAM_PASS:-}\" ]; then\n    echo \"Assetto Corsa Dedicated Server app 302550 requires a real Steam account. Set STEAM_USER and STEAM_PASS for an account that can download the Assetto Corsa Dedicated Server tool, or set ASSETTO_PREINSTALL=0 and upload server files to /assetto manually.\"\n    exit 20\n  fi\n  login_args=(+login \"$STEAM_USER\" \"$STEAM_PASS\")\n  [ -z \"${STEAM_AUTH:-}\" ] || login_args+=(\"$STEAM_AUTH\")\n  for attempt in 1 2 3 4; do\n    if HOME=\"$steam_home\" \"$steam_root/steamcmd.sh\" +@sSteamCmdForcePlatformType windows +force_install_dir \"$install_dir\" \"${login_args[@]}\" +app_update 302550 validate +quit; then\n      break\n    fi\n    status=$?\n    if [ \"$attempt\" -eq 4 ]; then\n      exit \"$status\"\n    fi\n    rm -rf \"$steam_root/package\" \"$steam_root/linux32/steamcmd\"\n    install_steamcmd\n    sleep $((attempt * 15))\n  done\nfi\nif [ ! -d \"$install_dir/system\" ]; then\n  echo \"Assetto Corsa server files are still missing after setup. Refusing to start a broken Server Manager container.\"\n  exit 30\nfi\nchmod -R a+rwX /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/home/assetto/server-manager",
-      "minimumStorageMb": 20000
+      "minimumStorageMb": 20000,
+      "timeoutSeconds": 3600
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "server-manager",
+        "acServer"
+      ]
     }
   },
   "documentation": [

@@ -42,7 +42,12 @@
       "MAX_RAM": "4096m",
       "STEAM_VAC": "true",
       "USE_STEAM": "true",
-      "TZ": "UTC"
+      "TZ": "UTC",
+      "GAME_VERSION": "public",
+      "MOD_NAMES": "",
+      "MOD_WORKSHOP_IDS": "",
+      "PUBLIC_SERVER": "true",
+      "PAUSE_ON_EMPTY": "true"
     },
     "command": "",
     "startupDisplay": "/bin/bash /home/steam/run_server.sh",
@@ -52,7 +57,8 @@
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server /mnt/server/config\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/home/steam/ZomboidDedicatedServer",
-      "minimumStorageMb": 10000
+      "minimumStorageMb": 10000,
+      "timeoutSeconds": 3600
     },
     "restart": "unless-stopped",
     "console": {

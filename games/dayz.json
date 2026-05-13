@@ -59,7 +59,8 @@
       "script": "#!/bin/bash\nset -Eeuo pipefail\napp_id=\"${APP_ID:-223350}\"\nif [ -z \"${STEAM_USER:-}\" ] || [ \"${STEAM_USER}\" = \"anonymous\" ]; then\n  echo \"DayZ app ${app_id} requires STEAM_USER and STEAM_PASS from a real Steam account.\"\n  exit 20\nfi\nif [ -z \"${STEAM_PASS:-}\" ]; then\n  echo \"STEAM_PASS is required for DayZ SteamCMD install.\"\n  exit 20\nfi\nmkdir -p /mnt/server/steamcmd /mnt/server/steamapps /mnt/server/profiles /mnt/server/.steam/sdk64 /mnt/server/.steam/sdk32\ninstall_steamcmd() {\n  rm -f /tmp/steamcmd.tar.gz\n  curl --retry 5 --retry-delay 2 --connect-timeout 20 -fsSL -o /tmp/steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz\n  tar -xzf /tmp/steamcmd.tar.gz -C /mnt/server/steamcmd\n}\nif [ ! -x /mnt/server/steamcmd/steamcmd.sh ] || [ ! -x /mnt/server/steamcmd/linux32/steamcmd ]; then\n  rm -rf /mnt/server/steamcmd\n  mkdir -p /mnt/server/steamcmd\n  install_steamcmd\nfi\nlogin_args=(+login \"$STEAM_USER\" \"$STEAM_PASS\")\n[ -z \"${STEAM_AUTH:-}\" ] || login_args+=(\"$STEAM_AUTH\")\nfor attempt in 1 2 3 4; do\n  if HOME=/mnt/server /mnt/server/steamcmd/steamcmd.sh +force_install_dir /mnt/server \"${login_args[@]}\" +app_update \"$app_id\" validate +quit; then\n    break\n  fi\n  status=$?\n  if [ \"$attempt\" -eq 4 ]; then\n    exit \"$status\"\n  fi\n  rm -rf /mnt/server/steamcmd/package /mnt/server/steamcmd/linux32/steamcmd\n  install_steamcmd\n  sleep $((attempt * 15))\ndone\nif [ ! -x /mnt/server/DayZServer ]; then\n  echo \"DayZServer executable is missing after SteamCMD install. Check Steam credentials, Steam Guard and app ${app_id} access.\"\n  exit 30\nfi\ncp -f /mnt/server/steamcmd/linux64/steamclient.so /mnt/server/.steam/sdk64/steamclient.so || true\ncp -f /mnt/server/steamcmd/linux32/steamclient.so /mnt/server/.steam/sdk32/steamclient.so || true\nserver_name=\"${SERVER_NAME:-ADPanel DayZ Server}\"\nserver_password=\"${SERVER_PASSWORD:-}\"\nadmin_password=\"${ADMIN_PASSWORD:-change-me}\"\nmax_players=\"${MAX_PLAYERS:-60}\"\nquery_port=\"${QUERY_PORT:-27016}\"\nserver_name=\"${server_name//\\\"/}\"\nserver_password=\"${server_password//\\\"/}\"\nadmin_password=\"${admin_password//\\\"/}\"\nif [ ! -f /mnt/server/serverDZ.cfg ]; then\ncat > /mnt/server/serverDZ.cfg <<EOF\nhostname = \"$server_name\";\npassword = \"$server_password\";\npasswordAdmin = \"$admin_password\";\nmaxPlayers = $max_players;\nverifySignatures = 2;\nforceSameBuild = 1;\nsteamQueryPort = $query_port;\nEOF\nfi\nchmod -R a+rwX /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/home/container",
-      "minimumStorageMb": 20000
+      "minimumStorageMb": 35000,
+      "timeoutSeconds": 3600
     },
     "restart": "unless-stopped",
     "console": {
@@ -73,7 +74,7 @@
   "requirements": {
     "minimumRamMb": 4096,
     "recommendedRamMb": 8192,
-    "minimumStorageMb": 20000,
+    "minimumStorageMb": 35000,
     "requiresSteamAccountForInstall": true
   }
 }

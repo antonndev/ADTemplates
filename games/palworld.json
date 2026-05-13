@@ -16,11 +16,11 @@
       "8211": [
         "udp"
       ],
-      "27015": [
-        "udp"
-      ],
       "25575": [
         "tcp"
+      ],
+      "27015": [
+        "udp"
       ]
     },
     "volumes": [
@@ -42,7 +42,13 @@
       "RCON_ENABLED": "true",
       "RCON_PORT": "25575",
       "UPDATE_ON_BOOT": "true",
-      "TZ": "Etc/UTC"
+      "TZ": "Etc/UTC",
+      "AUTO_UPDATE_ENABLED": "false",
+      "AUTO_UPDATE_CRON_EXPRESSION": "0 * * * *",
+      "TARGET_MANIFEST_ID": "",
+      "STEAM_USERNAME": "",
+      "STEAM_PASSWORD": "",
+      "USE_DEPOT_DOWNLOADER": "false"
     },
     "command": "",
     "startupDisplay": "/home/steam/server/init.sh",
@@ -52,7 +58,8 @@
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/Pal/Saved/Config/LinuxServer /mnt/server/Pal/Saved/SaveGames\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/palworld",
-      "minimumStorageMb": 12000
+      "minimumStorageMb": 12000,
+      "timeoutSeconds": 3600
     },
     "restart": "unless-stopped",
     "console": {

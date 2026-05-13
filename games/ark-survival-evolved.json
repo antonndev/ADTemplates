@@ -29,7 +29,8 @@
     },
     "volumes": [
       "{BOT_DIR}/server:/app",
-      "{BOT_DIR}/backups:/home/steam/ARK-Backups"
+      "{BOT_DIR}/backups:/home/steam/ARK-Backups",
+      "{BOT_DIR}/Steam:/home/steam/Steam"
     ],
     "workdir": "/app",
     "env": {
@@ -50,7 +51,8 @@
       "RCON_PORT": "27020",
       "SERVER_LIST_PORT": "27015",
       "GAME_MOD_IDS": "",
-      "TZ": "Etc/UTC"
+      "TZ": "Etc/UTC",
+      "STEAM_LOGIN": ""
     },
     "command": "",
     "startupDisplay": "/docker-entrypoint.sh",
@@ -60,7 +62,8 @@
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server /mnt/server/backups\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/app",
-      "minimumStorageMb": 60000
+      "minimumStorageMb": 60000,
+      "timeoutSeconds": 3600
     },
     "restart": "unless-stopped",
     "console": {

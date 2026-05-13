@@ -44,7 +44,8 @@
       "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/config/worlds /mnt/server/config/backups /mnt/server/data\nchmod -R 777 /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/config",
-      "minimumStorageMb": 6000
+      "minimumStorageMb": 6000,
+      "timeoutSeconds": 3600
     },
     "restart": "unless-stopped",
     "console": {
