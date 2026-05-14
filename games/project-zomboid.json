@@ -1,12 +1,12 @@
 {
   "id": "project-zomboid",
   "name": "Project Zomboid",
-  "description": "Project Zomboid dedicated server template using renegademaster/zomboid-dedicated-server. It persists both server install data and user config/save data, and exposes required game ports plus optional RCON.",
+  "description": "Project Zomboid dedicated server template using direct SteamCMD install/runtime. Stable installs omit beta flags; set SRCDS_BETAID only when a real Steam beta branch is required.",
   "defaultPort": 16261,
   "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/projectzomboid-logo.avif",
   "docker": {
-    "image": "renegademaster/zomboid-dedicated-server",
-    "tag": "latest",
+    "image": "ghcr.io/ptero-eggs/steamcmd",
+    "tag": "debian",
     "ports": [
       16261,
       16262,
@@ -24,54 +24,67 @@
       ]
     },
     "volumes": [
-      "{BOT_DIR}/server:/home/steam/ZomboidDedicatedServer",
-      "{BOT_DIR}/config:/home/steam/Zomboid"
+      "{BOT_DIR}:/home/container"
     ],
-    "workdir": "/home/root",
+    "workdir": "/home/container",
     "env": {
-      "ADMIN_PASSWORD": "change-me",
-      "ADMIN_USERNAME": "superuser",
-      "BIND_IP": "0.0.0.0",
-      "DEFAULT_PORT": "16261",
-      "UDP_PORT": "16262",
-      "RCON_PASSWORD": "change-me",
-      "RCON_PORT": "27015",
+      "SRCDS_APPID": "380870",
+      "STEAM_USER": "anonymous",
+      "STEAM_PASS": "",
+      "STEAM_AUTH": "",
+      "SRCDS_BETAID": "",
+      "SRCDS_BETAPASS": "",
+      "INSTALL_FLAGS": "",
+      "WINDOWS_INSTALL": "0",
+      "AUTO_UPDATE": "0",
       "SERVER_NAME": "ADPanelZomboid",
-      "SERVER_PASSWORD": "",
+      "ADMIN_USER": "admin",
+      "ADMIN_PASSWORD": "change-me",
+      "SERVER_PORT": "16261",
+      "STEAM_PORT": "16262",
+      "RCON_PORT": "27015",
       "MAX_PLAYERS": "16",
       "MAX_RAM": "4096m",
-      "STEAM_VAC": "true",
-      "USE_STEAM": "true",
-      "TZ": "UTC",
-      "GAME_VERSION": "public",
-      "MOD_NAMES": "",
-      "MOD_WORKSHOP_IDS": "",
-      "PUBLIC_SERVER": "true",
-      "PAUSE_ON_EMPTY": "true"
+      "TZ": "UTC"
     },
     "command": "",
-    "startupDisplay": "/bin/bash /home/steam/run_server.sh",
-    "adpanelStartup": "",
+    "adpanelStartup": "export PATH=\"./jre64/bin:$PATH\"; export LD_LIBRARY_PATH=\"./linux64:./natives:.:./jre64/lib/amd64:${LD_LIBRARY_PATH}\"; JSIG=\"libjsig.so\"; LD_PRELOAD=\"${LD_PRELOAD}:${JSIG}\" ./ProjectZomboid64 -port {{SERVER_PORT}} -udpport {{STEAM_PORT}} -cachedir=/home/container/.cache -servername \"{{SERVER_NAME}}\" -adminusername {{ADMIN_USER}} -adminpassword \"{{ADMIN_PASSWORD}}\"",
+    "startupDisplay": "./ProjectZomboid64 -port {{SERVER_PORT}} -udpport {{STEAM_PORT}} -cachedir=/home/container/.cache -servername \"{{SERVER_NAME}}\"",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/server /mnt/server/config\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
+      "script": "#!/bin/bash\nset -Eeuo pipefail\n\nexport DEBIAN_FRONTEND=noninteractive\nif command -v apt-get >/dev/null 2>&1; then\n  apt-get update\n  apt-get install -y --no-install-recommends ca-certificates curl lib32gcc-s1 lib32stdc++6 netcat-openbsd telnet\nfi\n\nif [[ \"${STEAM_USER:-}\" == \"\" ]] || [[ \"${STEAM_PASS:-}\" == \"\" ]]; then\n  echo \"steam user is not set; using anonymous login\"\n  STEAM_USER=anonymous\n  STEAM_PASS=\"\"\n  STEAM_AUTH=\"\"\nelse\n  echo \"steam user set to ${STEAM_USER}\"\nfi\n\ncd /tmp\nmkdir -p /mnt/server/steamcmd /mnt/server/steamapps /mnt/server/.steam/sdk32 /mnt/server/.steam/sdk64 /mnt/server/logs\ncurl --fail --location --show-error --retry 5 --retry-delay 3 --connect-timeout 20 -o steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz\ntar -xzf steamcmd.tar.gz -C /mnt/server/steamcmd\ncd /mnt/server/steamcmd\n\nchown -R root:root /mnt\nexport HOME=/mnt/server\n\nsteamcmd=(./steamcmd.sh +force_install_dir /mnt/server +login \"${STEAM_USER}\" )\nif [[ -n \"${STEAM_PASS:-}\" ]]; then steamcmd+=(\"${STEAM_PASS}\"); fi\nif [[ -n \"${STEAM_AUTH:-}\" ]]; then steamcmd+=(\"${STEAM_AUTH}\"); fi\nif [[ \"${WINDOWS_INSTALL:-0}\" == \"1\" ]]; then steamcmd+=(+@sSteamCmdForcePlatformType windows); fi\nsteamcmd+=(+app_update \"${SRCDS_APPID:-380870}\")\nif [[ -n \"${SRCDS_BETAID:-}\" ]]; then steamcmd+=(-beta \"${SRCDS_BETAID}\"); fi\nif [[ -n \"${SRCDS_BETAPASS:-}\" ]]; then steamcmd+=(-betapassword \"${SRCDS_BETAPASS}\"); fi\nif [[ -n \"${INSTALL_FLAGS:-}\" ]]; then\n  # shellcheck disable=SC2206\n  extra_flags=(${INSTALL_FLAGS})\n  steamcmd+=(\"${extra_flags[@]}\")\nfi\nsteamcmd+=(validate +quit)\n\n\"${steamcmd[@]}\"\n\nif [[ -f linux32/steamclient.so ]]; then cp -v linux32/steamclient.so /mnt/server/.steam/sdk32/steamclient.so; fi\nif [[ -f linux64/steamclient.so ]]; then cp -v linux64/steamclient.so /mnt/server/.steam/sdk64/steamclient.so; fi\ncd /mnt/server\nrm -f /mnt/server/start-server.sh\nchmod +x /mnt/server/ProjectZomboid64 2>/dev/null || true\nchown -R 1000:1000 /mnt/server 2>/dev/null || true\nchmod -R u+rwX,go+rX /mnt/server\n\necho \"-----------------------------------------\"\necho \"Installation completed\"\necho \"-----------------------------------------\"",
       "mountPath": "/mnt/server",
-      "runtimePath": "/home/steam/ZomboidDedicatedServer",
-      "minimumStorageMb": 10000,
-      "timeoutSeconds": 3600
+      "runtimePath": "/home/container",
+      "minimumStorageMb": 12000,
+      "timeoutSeconds": 3600,
+      "env": {
+        "SRCDS_APPID": "380870",
+        "STEAM_USER": "anonymous",
+        "STEAM_PASS": "",
+        "STEAM_AUTH": "",
+        "SRCDS_BETAID": "",
+        "SRCDS_BETAPASS": "",
+        "INSTALL_FLAGS": "",
+        "WINDOWS_INSTALL": "0"
+      }
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "ProjectZomboid64",
+        "java"
+      ]
     }
   },
   "documentation": [
-    "https://hub.docker.com/r/renegademaster/zomboid-dedicated-server",
-    "https://github.com/Renegade-Master/zomboid-dedicated-server"
+    "https://eggs.pterodactyl.io/egg/games-project-zomboid/",
+    "https://steamdb.info/app/380870/config/",
+    "https://pzwiki.net/wiki/Dedicated_server"
   ],
   "requirements": {
     "minimumRamMb": 4096,
     "recommendedRamMb": 8192,
-    "minimumStorageMb": 10000
+    "minimumStorageMb": 12000
   }
 }

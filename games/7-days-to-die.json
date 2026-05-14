@@ -1,28 +1,20 @@
 {
   "id": "7-days-to-die",
   "name": "7 Days to Die",
-  "description": "7 Days to Die dedicated server template using vinanrra/7dtd-server with LinuxGSM. It supports automatic install/start, stable branch selection, backups, monitoring and persistent server/config/save/log directories.",
+  "description": "7 Days to Die dedicated server template using direct SteamCMD install/runtime. This avoids wrapper-image user setup failures and follows the Pterodactyl-style dedicated server layout.",
   "defaultPort": 26900,
   "templateImage": "https://cdn.jsdelivr.net/gh/antonndev/ADCDn/7daystodie-logo.avif",
   "docker": {
-    "image": "vinanrra/7dtd-server",
-    "tag": "latest",
+    "image": "ghcr.io/ptero-eggs/steamcmd",
+    "tag": "debian",
     "ports": [
       26900,
       26901,
       26902,
-      8080,
-      8081,
-      8082
+      8081
     ],
     "portProtocols": {
-      "8080": [
-        "tcp"
-      ],
       "8081": [
-        "tcp"
-      ],
-      "8082": [
         "tcp"
       ],
       "26900": [
@@ -37,45 +29,62 @@
       ]
     },
     "volumes": [
-      "{BOT_DIR}/saves:/home/sdtdserver/.local/share/7DaysToDie",
-      "{BOT_DIR}/config:/home/sdtdserver/lgsm/config-lgsm/sdtdserver",
-      "{BOT_DIR}/serverfiles:/home/sdtdserver/serverfiles",
-      "{BOT_DIR}/logs:/home/sdtdserver/log",
-      "{BOT_DIR}/backups:/home/sdtdserver/lgsm/backup"
+      "{BOT_DIR}:/home/container"
     ],
-    "runAsRoot": true,
-    "workdir": "/home/sdtdserver",
+    "workdir": "/home/container",
     "env": {
-      "START_MODE": "1",
-      "VERSION": "stable",
-      "PUID": "1000",
-      "PGID": "1000",
-      "TimeZone": "Etc/UTC",
-      "BACKUP": "NO",
-      "MONITOR": "YES",
-      "TEST_ALERT": "NO",
-      "CHANGE_CONFIG_DIR_OWNERSHIP": "NO"
+      "SRCDS_APPID": "294420",
+      "STEAM_USER": "anonymous",
+      "STEAM_PASS": "",
+      "STEAM_AUTH": "",
+      "SRCDS_BETAID": "",
+      "SRCDS_BETAPASS": "",
+      "INSTALL_FLAGS": "",
+      "WINDOWS_INSTALL": "0",
+      "AUTO_UPDATE": "0",
+      "LD_LIBRARY_PATH": ".",
+      "SERVER_PORT": "26900",
+      "TELNET_PORT": "8081",
+      "PASSWORD": "",
+      "MAX_PLAYERS": "8",
+      "GAME_DIFFICULTY": "2",
+      "SERVER_DISABLED_NETWORK_PROTOCOLS": "",
+      "TZ": "Etc/UTC"
     },
     "command": "",
-    "startupDisplay": "/home/sdtdserver/user.sh",
-    "adpanelStartup": "",
+    "adpanelStartup": "./7DaysToDieServer.x86_64 -configfile=serverconfig.xml -quit -batchmode -nographics -dedicated -ServerPort={{SERVER_PORT}} -ServerDisabledNetworkProtocols={{SERVER_DISABLED_NETWORK_PROTOCOLS}} -ServerMaxPlayerCount={{MAX_PLAYERS}} -GameDifficulty={{GAME_DIFFICULTY}} -ControlPanelEnabled=false -TelnetEnabled=true -TelnetPort={{TELNET_PORT}} -TelnetPassword=\"{{PASSWORD}}\" -logfile logs/latest.log",
+    "startupDisplay": "./7DaysToDieServer.x86_64 -configfile=serverconfig.xml -quit -batchmode -nographics -dedicated -ServerPort={{SERVER_PORT}}",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\nmkdir -p /mnt/server/saves /mnt/server/config /mnt/server/serverfiles /mnt/server/logs /mnt/server/backups\nchown -R 1000:1000 /mnt/server\nchmod -R 777 /mnt/server",
+      "script": "#!/bin/bash\nset -Eeuo pipefail\n\nexport DEBIAN_FRONTEND=noninteractive\nif command -v apt-get >/dev/null 2>&1; then\n  apt-get update\n  apt-get install -y --no-install-recommends ca-certificates curl lib32gcc-s1 lib32stdc++6 netcat-openbsd telnet\nfi\n\nif [[ \"${STEAM_USER:-}\" == \"\" ]] || [[ \"${STEAM_PASS:-}\" == \"\" ]]; then\n  echo \"steam user is not set; using anonymous login\"\n  STEAM_USER=anonymous\n  STEAM_PASS=\"\"\n  STEAM_AUTH=\"\"\nelse\n  echo \"steam user set to ${STEAM_USER}\"\nfi\n\ncd /tmp\nmkdir -p /mnt/server/steamcmd /mnt/server/steamapps /mnt/server/.steam/sdk32 /mnt/server/.steam/sdk64 /mnt/server/logs\ncurl --fail --location --show-error --retry 5 --retry-delay 3 --connect-timeout 20 -o steamcmd.tar.gz https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz\ntar -xzf steamcmd.tar.gz -C /mnt/server/steamcmd\ncd /mnt/server/steamcmd\n\nchown -R root:root /mnt\nexport HOME=/mnt/server\n\nsteamcmd=(./steamcmd.sh +force_install_dir /mnt/server +login \"${STEAM_USER}\" )\nif [[ -n \"${STEAM_PASS:-}\" ]]; then steamcmd+=(\"${STEAM_PASS}\"); fi\nif [[ -n \"${STEAM_AUTH:-}\" ]]; then steamcmd+=(\"${STEAM_AUTH}\"); fi\nif [[ \"${WINDOWS_INSTALL:-0}\" == \"1\" ]]; then steamcmd+=(+@sSteamCmdForcePlatformType windows); fi\nsteamcmd+=(+app_update \"${SRCDS_APPID:-294420}\")\nif [[ -n \"${SRCDS_BETAID:-}\" ]]; then steamcmd+=(-beta \"${SRCDS_BETAID}\"); fi\nif [[ -n \"${SRCDS_BETAPASS:-}\" ]]; then steamcmd+=(-betapassword \"${SRCDS_BETAPASS}\"); fi\nif [[ -n \"${INSTALL_FLAGS:-}\" ]]; then\n  # shellcheck disable=SC2206\n  extra_flags=(${INSTALL_FLAGS})\n  steamcmd+=(\"${extra_flags[@]}\")\nfi\nsteamcmd+=(validate +quit)\n\n\"${steamcmd[@]}\"\n\nif [[ -f linux32/steamclient.so ]]; then cp -v linux32/steamclient.so /mnt/server/.steam/sdk32/steamclient.so; fi\nif [[ -f linux64/steamclient.so ]]; then cp -v linux64/steamclient.so /mnt/server/.steam/sdk64/steamclient.so; fi\ncd /mnt/server\nchmod +x /mnt/server/7DaysToDieServer.x86_64 2>/dev/null || true\nchown -R 1000:1000 /mnt/server 2>/dev/null || true\nchmod -R u+rwX,go+rX /mnt/server\n\necho \"-----------------------------------------\"\necho \"Installation completed\"\necho \"-----------------------------------------\"",
       "mountPath": "/mnt/server",
-      "runtimePath": "/home/sdtdserver/serverfiles",
+      "runtimePath": "/home/container",
       "minimumStorageMb": 20000,
-      "timeoutSeconds": 3600
+      "timeoutSeconds": 3600,
+      "env": {
+        "SRCDS_APPID": "294420",
+        "STEAM_USER": "anonymous",
+        "STEAM_PASS": "",
+        "STEAM_AUTH": "",
+        "SRCDS_BETAID": "",
+        "SRCDS_BETAPASS": "",
+        "INSTALL_FLAGS": "",
+        "WINDOWS_INSTALL": "0"
+      }
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "7DaysToDieServer.x86_64",
+        "7DaysToDieServer"
+      ]
     }
   },
   "documentation": [
-    "https://hub.docker.com/r/vinanrra/7dtd-server",
-    "https://github.com/vinanrra/Docker-7DaysToDie/blob/master/docs/parameters.md",
-    "https://linuxgsm.com/servers/sdtdserver/"
+    "https://eggs.pterodactyl.io/egg/games-7-days-to-die/",
+    "https://developer.valvesoftware.com/wiki/Dedicated_Servers_List",
+    "https://steamdb.info/app/294420/"
   ],
   "requirements": {
     "minimumRamMb": 6144,

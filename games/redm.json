@@ -13,20 +13,20 @@
       8080
     ],
     "portProtocols": {
-      "30120": [
-        "tcp",
-        "udp"
+      "8080": [
+        "tcp"
       ],
       "30110": [
         "tcp",
         "udp"
       ],
-      "8080": [
-        "tcp"
+      "30120": [
+        "tcp",
+        "udp"
       ]
     },
     "volumes": [
-      "{BOT_DIR}:/serverdata/serverfiles"
+      "{BOT_DIR}:/serverdata"
     ],
     "workdir": "/serverdata/serverfiles",
     "env": {
@@ -45,7 +45,7 @@
     "adpanelStartup": "",
     "install": {
       "image": "ghcr.io/pterodactyl/installers:debian",
-      "script": "#!/bin/sh\nset -eu\ncfg=/mnt/server/server.cfg\nserver_port=\"${SERVER_PORT:-${PORT:-30120}}\"\nmkdir -p /mnt/server/resources\nif [ ! -s \"$cfg\" ]; then\n  cat > \"$cfg\" <<EOF\nendpoint_add_tcp \"0.0.0.0:${server_port}\"\nendpoint_add_udp \"0.0.0.0:${server_port}\"\nsv_endpointprivacy true\nsv_maxclients 32\nEOF\nelse\n  if grep -q '^endpoint_add_tcp ' \"$cfg\"; then\n    sed -i \"s|^endpoint_add_tcp .*|endpoint_add_tcp \\\"0.0.0.0:${server_port}\\\"|\" \"$cfg\"\n  else\n    sed -i \"1i endpoint_add_tcp \\\"0.0.0.0:${server_port}\\\"\" \"$cfg\"\n  fi\n  if grep -q '^endpoint_add_udp ' \"$cfg\"; then\n    sed -i \"s|^endpoint_add_udp .*|endpoint_add_udp \\\"0.0.0.0:${server_port}\\\"|\" \"$cfg\"\n  else\n    sed -i \"1i endpoint_add_udp \\\"0.0.0.0:${server_port}\\\"\" \"$cfg\"\n  fi\nfi\nchown -R 99:100 /mnt/server 2>/dev/null || true\nchmod -R u+rwX,go+rX /mnt/server",
+      "script": "#!/bin/sh\nset -eu\nserver_root=/mnt/server/serverfiles\ncfg=\"$server_root/server.cfg\"\nserver_port=\"${SERVER_PORT:-${PORT:-30120}}\"\nmkdir -p \"$server_root/resources\"\nif [ ! -s \"$cfg\" ]; then\n  cat > \"$cfg\" <<EOF\nendpoint_add_tcp \"0.0.0.0:${server_port}\"\nendpoint_add_udp \"0.0.0.0:${server_port}\"\nsv_endpointprivacy true\nsv_maxclients 32\nEOF\nelse\n  if grep -q '^endpoint_add_tcp ' \"$cfg\"; then\n    sed -i \"s|^endpoint_add_tcp .*|endpoint_add_tcp \\\"0.0.0.0:${server_port}\\\"|\" \"$cfg\"\n  else\n    sed -i \"1i endpoint_add_tcp \\\"0.0.0.0:${server_port}\\\"\" \"$cfg\"\n  fi\n  if grep -q '^endpoint_add_udp ' \"$cfg\"; then\n    sed -i \"s|^endpoint_add_udp .*|endpoint_add_udp \\\"0.0.0.0:${server_port}\\\"|\" \"$cfg\"\n  else\n    sed -i \"1i endpoint_add_udp \\\"0.0.0.0:${server_port}\\\"\" \"$cfg\"\n  fi\nfi\nprintf '%s\\n' 'ADPanel persistent server data root. Runtime mounts this directory to /serverdata.' > /mnt/server/README_ADPANEL.txt\nchown -R 99:100 /mnt/server 2>/dev/null || true\nchmod -R u+rwX,go+rX /mnt/server",
       "mountPath": "/mnt/server",
       "runtimePath": "/serverdata/serverfiles",
       "minimumStorageMb": 8192,
@@ -53,7 +53,11 @@
     },
     "restart": "unless-stopped",
     "console": {
-      "type": "stdin"
+      "type": "stdin",
+      "targetProcesses": [
+        "FXServer",
+        "fxserver"
+      ]
     }
   },
   "documentation": [
